@@ -1,0 +1,58 @@
+version: '2'
+
+services:
+  postgressql:
+    container_name: postgressql
+    image: bitnami/postgresql
+    hostname: postgressql
+    domainname: fullstack.dev
+    networks:
+      - full-stack-network
+    ports:
+      - 5432:5432
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+
+  kafka:
+    image: bitnami/kafka
+    ports:
+      - 9094:9094
+    volumes:
+      - "kafka_data:/bitnami"
+    networks:
+      - full-stack-network
+    environment:
+      # KRaft settings
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      # Listeners
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:9092,EXTERNAL://localhost:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+
+  redis:
+    image: docker.io/bitnami/redis:7.2
+    environment:
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    ports:
+      - 6379:6379
+    networks:
+      - full-stack-network
+    volumes:
+      - 'redis_data:/bitnami/redis/data'
+
+volumes:
+  kafka_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  full-stack-network:
+    external: true
