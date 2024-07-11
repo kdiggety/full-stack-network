@@ -1,5 +1,5 @@
 provider "aws" {
-  region                      = "us-west-2"
+  region                      = var.aws_region
   access_key                  = "test"
   secret_key                  = "test"
   skip_credentials_validation = true
@@ -35,3 +35,5 @@ provider "aws" {
     sts             = "http://localhost:4566"
   }
 }
+
+provider "docker" {}
