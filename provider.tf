@@ -36,4 +36,7 @@ provider "aws" {
   }
 }
 
-provider "docker" {}
+provider "docker" {
+  host     = "ssh://klewisjr@macdaddy.local:22"
+  ssh_opts = ["-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null"]
+}
